@@ -30,7 +30,7 @@
         </div>
         
         <div style="text-align:center;padding:5px 0">
-            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()" style="width:80px">가입</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="memberList()" style="width:80px">가입</a>
             <a href="javascript:void(0)" class="easyui-linkbutton" onclick="loginMember()" style="width:80px">돌아가기</a>
         </div>
     </div>
@@ -47,6 +47,10 @@
 	    
 		function loginMember(){
 			window.location.href="loginMember";
+	    }
+	    
+	    function memberList(){
+	    	window.location.href="memberList";
 	    }
 	    
 	    function maxLengthCheck(object){

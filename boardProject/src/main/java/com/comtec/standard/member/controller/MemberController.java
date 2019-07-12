@@ -44,7 +44,7 @@ public class MemberController {
 		return "login";
 	}
 	
-	@RequestMapping("/memberList")
+	@RequestMapping(value="/memberList")
 	public @ResponseBody List<MemberVO> memberList() throws Exception{
 		return memberService.memberList();
 	}

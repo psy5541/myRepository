@@ -19,7 +19,7 @@ public class CertificationInterceptor implements HandlerInterceptor{
             throws Exception {
         HttpSession session = request.getSession();
         MemberVO loginVO = (MemberVO) session.getAttribute("loginUser");
- 
+        
         if(ObjectUtils.isEmpty(loginVO)){
             response.sendRedirect("/login");
             return false;
@@ -27,7 +27,6 @@ public class CertificationInterceptor implements HandlerInterceptor{
             session.setMaxInactiveInterval(30*60);
             return true;
         }
-        
     }
  
     @Override

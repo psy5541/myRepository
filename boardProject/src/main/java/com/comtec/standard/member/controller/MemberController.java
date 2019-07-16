@@ -1,28 +1,24 @@
 package com.comtec.standard.member.controller;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 import com.comtec.standard.member.service.MemberService;
 import com.comtec.standard.member.vo.MemberVO;
 
 @Controller
-//@MapperScan(basePackages="com.example.demo.member.dao")
 public class MemberController {
-	//@GetMapping("/join") 
-	/*
-	 * @Resource(name="memberDao") MemberDAO memberDao;
-	 */
-	
 	@Resource
 	MemberService memberService;
 	
@@ -32,7 +28,7 @@ public class MemberController {
 	 */
 	@RequestMapping(value="/joinMember") 
 	public String joinMember() throws Exception{
-		return "joinMember";
+		return "member/joinMember";
 	}
 
 	/**
@@ -41,12 +37,34 @@ public class MemberController {
 	 */
 	@RequestMapping(value="/loginMember") 
 	public String loginMember() throws Exception{
-		return "login";
+		return "member/login";
 	}
 	
-	@RequestMapping(value="/memberList")
-	public @ResponseBody List<MemberVO> memberList() throws Exception{
-		return memberService.memberList();
+	/**
+	 * 회원 정보 등록
+	 * @param parameter HTTP 요청 파라미터
+	 * @return key
+	 */
+	
+	@RequestMapping(value="/insertMember", method= {RequestMethod.GET, RequestMethod.POST}) 
+	@ResponseBody
+	//public String insertMember(@RequestBody Map<String, Object> parameter, HttpServletResponse response) throws Exception{
+	public String insertMember(HttpServletRequest parameter, Model model) throws Exception{
+	//public String insertMember(MemberVO memberVo, Model model) throws Exception{
+		HashMap<String,Object> map = new HashMap<String,Object>();
+		map.put("userId", parameter.getParameter("userId"));
+		map.put("userNm", parameter.getParameter("userNm"));
+		map.put("phoneNo", parameter.getParameter("phoneNo"));
+		
+		String result = memberService.insertMember(map);
+		return result;
+ 	}
+	
+	
+	@RequestMapping(value = "/memberList", method=RequestMethod.POST)
+	public @ResponseBody List<MemberVO> memberList(HttpServletRequest request) throws Exception{
+		List<MemberVO> result = memberService.memberList();
+		return result;
 	}
 	
 	//@RequestMapping(value="/memberList")
@@ -54,17 +72,4 @@ public class MemberController {
 	//	MemberVO memberVo = memberMapper.memberList(userId);
 	//	return memberVo.getUserId();
 	//}
-	
-	/**
-	 * 회원 정보 등록
-	 * @param parameter HTTP 요청 파라미터
-	 * @return key
-	 */
-	/*
-	 * @RequestMapping(value="/insertMember", method=RequestMethod.GET) public int
-	 * insertMember(@RequestParam HashMap<String,String> parameter) throws
-	 * Exception{ int key = memberDao.insertMember(parameter);
-	 * 
-	 * return key; }
-	 */
 }

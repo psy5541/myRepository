@@ -11,7 +11,7 @@ public interface MemberMapper{
 	 * @param param 
 	 * @return key
 	 */
-	public int insertMember(HashMap<String,String> parameter) throws Exception;
+	public String insertMember(HashMap<String,Object> parameter) throws Exception;
 
 	/**
 	 * 회원 정보 조회

@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html>
+<style type="text/css">
+	#Progress_Loading
+	{
+		position:absolute;
+		left:49%;
+		top:50%;
+		background-color: #ffffff;
+		background-color: rgba(255, 255, 255, 0.5)
+	}
+</style>
 <head>
     <meta charset="UTF-8">
     <title>join Member</title>
-    <link rel="stylesheet" type="text/css" href="/jquery-easyui-1.8.1/themes/default/easyui.css">
-    <link rel="stylesheet" type="text/css" href="/jquery-easyui-1.8.1/themes/icon.css">
-    <link rel="stylesheet" type="text/css" href="/jquery-easyui-1.8.1/themes/color.css">
-    <script type="text/javascript" src="/jquery-easyui-1.8.1/jquery.min.js"></script>
-    <script type="text/javascript" src="/jquery-easyui-1.8.1/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/color.css">
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.easyui.min.js"></script>
 </head>
 <body>
 	<form id="memberForm">
@@ -35,8 +45,26 @@
             <a href="javascript:void(0)" class="easyui-linkbutton" onclick="loginMember()" style="width:80px">돌아가기</a>
         </div>
     </div>
+    
+	<!-- <div id = "Progress_Loading">로딩바
+		<img src="/static/image/Progress_Loading.gif"/>
+	</div> -->
+	
     </form>
+    
     <script type="text/javascript">
+    	$(document).ready(function(){
+    		//$("#Progress_Loading").hide();
+    	})
+    	
+    	/* .ajaxStart(function(){
+    		$("#Progress_Loading").show();
+    	});
+    	
+    	.ajaxStop(function(){
+    		$("#Progress_Loading").hide();
+    	}) */
+    
 	    $.extend($.fn.validatebox.defaults.rules, {
 	        confirmPass: {
 	            validator: function(value, param){
@@ -52,7 +80,7 @@
 	    }
 	    
 	    function memberList(){
-	    	var url = "/insertMember?";
+	    	var url = "/memberList?";
 	    	var form = $("#memberForm").serialize();
 	    	
 	    	var data = {};
@@ -62,7 +90,7 @@
 	    	
 			$.ajax({
 				type:"POST",
-				contentType: "a4pplication/json",
+				contentType: "application/json",
 				url: url + form,
 				dataType: "json",
 				//data: form,

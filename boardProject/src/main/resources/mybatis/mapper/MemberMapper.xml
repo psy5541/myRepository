@@ -11,7 +11,11 @@
 
     <!-- <select id="memberList" parameterType="String" resultType="com.comtec.standard.member.vo.MemberVO"> -->
     <select id="memberList" resultMap="MemberResultMap">
-        SELECT "USER_ID", "USER_NM", "PHONE_NO" FROM "TB_USER"
+        SELECT 
+        	  "USER_ID"
+        	, "USER_NM"
+        	, "PHONE_NO" 
+       	FROM "TB_USER"
      </select>
     
     <select id="insertMember" parameterType="HashMap">

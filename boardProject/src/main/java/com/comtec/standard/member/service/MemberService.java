@@ -21,8 +21,8 @@ public class MemberService implements MemberMapper{
 	@Resource
 	private SqlSessionTemplate sqlSession;
 	
-	@Resource
-	private DataSourceTransactionManager transactionManager;
+	//@Resource
+	//private DataSourceTransactionManager transactionManager;
 	
 	public List<MemberVO> memberList() throws Exception{
 		MemberMapper memberMapper = sqlSession.getMapper(MemberMapper.class);
@@ -32,24 +32,24 @@ public class MemberService implements MemberMapper{
 	@Override
 	@Transactional
 	public String insertMember(HashMap<String, Object> parameter) throws Exception {
-		DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-		def.setName("example.transaction");
-		def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+		//DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+		//def.setName("example.transaction");
+		//def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 		
-		TransactionStatus status = transactionManager.getTransaction(def);
+		//TransactionStatus status = transactionManager.getTransaction(def);
 		
 		try {
 			MemberMapper memberMapper = sqlSession.getMapper(MemberMapper.class);
 			memberMapper.insertMember(parameter);
 		} catch(Exception e) {
-			transactionManager.rollback(status);
+			//transactionManager.rollback(status);
 			e.printStackTrace();
 			return "FAIL";
-		} finally {
-			sqlSession.close();
-		}
+		} /*
+			 * finally { sqlSession.close(); }
+			 */
 		
-		transactionManager.commit(status);
+		//transactionManager.commit(status);
 		return "SU";
 	}
 }

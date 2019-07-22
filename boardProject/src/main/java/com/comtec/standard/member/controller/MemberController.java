@@ -39,13 +39,21 @@ public class MemberController {
 	public String loginMember() throws Exception{
 		return "member/login";
 	}
+
+	/**
+	 * 로그인 화면 이동
+	 * @return url
+	 */
+	@RequestMapping(value="/noticeList") 
+	public String noticeList() throws Exception{
+		return "member/noticeList";
+	}
 	
 	/**
 	 * 회원 정보 등록
 	 * @param parameter HTTP 요청 파라미터
 	 * @return key
 	 */
-	
 	@RequestMapping(value="/insertMember", method= {RequestMethod.GET, RequestMethod.POST}) 
 	@ResponseBody
 	//public String insertMember(@RequestBody Map<String, Object> parameter, HttpServletResponse response) throws Exception{

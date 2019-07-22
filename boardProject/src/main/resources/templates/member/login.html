@@ -2,43 +2,43 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Fluid Layout - jQuery EasyUI Demo</title>
     <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/default/easyui.css">
     <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/icon.css">
     <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/color.css">
     <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.min.js"></script>
     <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.easyui.min.js"></script>
 </head>
-<body onload='init();'>
-    <div style="margin:20px 0;"></div>
-    <div class="easyui-panel" style="position:absolute;top:50%;left:53%;width:400px;margin-left: -250px;margin-top: -250px;padding:50px 60px">
-    	<h2 style="margin-left:50px;">게시판 회원 로그인</h3>
-        <div style="margin-bottom:20px">
-            <input class="easyui-textbox" prompt="아이디(이메일)" iconWidth="28" style="width:100%;height:34px;padding:10px;">
+<body>
+    <div id="cc" class="easyui-layout" style="width:100%;height:700px;">
+        <div data-options="region:'south',split:true" style="height:25px;"><font style="text-align:'center'">Copyright ⓒCOMTEC Corp. All Rights Reserved.</font></div>
+        <div data-options="region:'west',split:true" title="메뉴" style="width:250px;">
+			<div class="easyui-panel" title="" style="width:100%;">
+		        <div class="easyui-menu" data-options="inline:true" style="width:100%">
+		            <div>
+		                <span>게시판</span>
+		                <div style="width:150px;">
+		                    <div>공지사항</div>
+		                    <div>자유게시판</div>
+		                </div>
+		            </div>
+		            <div>
+		                <span>회원</span>
+		                <div style="width:150px;">
+		                    <div>회원목록</div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
         </div>
-        <div style="margin-bottom:20px">
-            <input class="easyui-passwordbox" prompt="비밀번호" iconWidth="28" style="width:100%;height:34px;padding:10px">
-        </div>
+        <div data-options="region:'center',title:'화면',href:'templates/member/noticeList.html'">
         
-    	<a href="#" class="easyui-linkbutton c1" style="width:100%;height:34px;padding:5px;">로그인</a>
-	    <div style="margin:20px 0">
-    		<a id="joinBtn" name="joinBtn" href="#" class="easyui-linkbutton c6" style="width:100%;height:34px;padding:5px;">회원가입</a>
-	    </div>
+        </div>
     </div>
+    
+    <script type="text/javascript">
+    	$(document).ready(function(){
+    	})
+    </script>
 </body>
 </html>
-
-<script type="text/javascript">
-	function init(){
-		$("#joinBtn").click(function(){
-			window.location.href="joinMember";
-		})
-	}
-	
-	/* window.onpageshow = function(event){
-		if ( event.persisted || (window.performance && window.performance.navigation.type == 2)) {
-			window.location.reload();
-		}else{
-		}
-	} */
-</script>

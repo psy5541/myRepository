@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Fluid Layout - jQuery EasyUI Demo</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/color.css">
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.min.js"></script>
+    
+	<!-- EasyUI JS & Extension JS...-->
+	<script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="/static/jquery-easyui-1.6.11/locale/easyui-lang-ko.js"></script>
+	
+	<!-- Plotly.js -->
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	
+	<!-- chart.js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+</head>
+<body>
+    <div style="margin:20px 0;"></div>
+    <div class="easyui-layout" style="width:100%;height:550px;">
+        <div data-options="region:'center',iconCls:'icon-ok'" style="padding:5px">
+            <div class="easyui-layout" data-options="fit:true">
+                <div data-options="region:'west',split:true" style="width:50%;height:100px;">
+					<div id="lineChart"></div>
+                </div>
+                <div data-options="region:'center'" style="width:50%;height:100px;">
+					<div id="barChart"></div>
+				</div>
+            </div>
+        </div>
+    </div>
+    <div class="easyui-layout" style="width:100%;height:550px;">
+        <div data-options="region:'center',iconCls:'icon-ok'" style="padding:5px">
+            <div class="easyui-layout" data-options="fit:true">
+                <div data-options="region:'west',split:true" style="width:50%;height:100px;">
+					<canvas id="line-chart" height="240"></canvas>
+                </div>
+                <div data-options="region:'center'" style="width:50%;height:100px;">
+					<canvas id="bar-chart" height="240"></canvas>
+				</div>
+            </div>
+        </div>
+    </div>
+    <div class="easyui-layout" style="width:100%;height:550px;">
+        <div data-options="region:'center',iconCls:'icon-ok'" style="padding:5px">
+            <div class="easyui-layout" data-options="fit:true">
+                <div data-options="region:'west',split:true" style="width:50%;height:100px;">
+					<canvas id="pie-chart" height="240"></canvas>
+                </div>
+                <div data-options="region:'center'" style="width:50%;height:100px;">
+					<canvas id="radar-chart" height="240"></canvas>
+				</div>
+            </div>
+        </div>
+    </div>
+	
+	<!-- JAVASCRIPT CODE GOES HERE -->
+	<script>
+	    $(document).ready(function() {
+	    	//LineChart(게시판 일별 통계)
+	    	chart1();
+	    	
+	    	chart2();
+	    	
+	    	chart3();
+	    	
+	    	chart4();
+	    	
+	    	chart5();
+	    });
+	    
+    	/* 게시글 월별 차트 목록 조회 */
+		function chart1(){
+    		var url = "/getBoardLChart";
+    		
+			$.ajax({
+				type:"POST",
+				contentType: "application/json",
+				url: url,
+				dataType: "json",
+				//data: JSON.stringify(data),
+				charset: "utf-8",
+				cache: false,
+				success: function(result){
+					if(result.length > 0){
+						var dataX = new Array();
+						var dataY = new Array();
+						$.each(result, function(index, item){
+							dataX.push(item.regDate);
+							dataY.push(item.cnt);
+						});
+						
+						var trace = {
+							type:'scatter',
+							x: dataX,
+							y: dataY,
+							mode: 'lines+markers',
+							name: 'Lines',
+							line: {
+								color: '#3e95cd',
+								width: 2
+							}
+						}
+
+						var data = [ trace ];
+
+						var layout = {
+							title:'Line Chart',
+							width: 600,
+							height: 500
+						};
+
+						Plotly.newPlot('lineChart', data, layout);
+					}
+				},
+				data: function(xhr, status, e){
+				    alert("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+e);
+				}
+			});
+		}
+    	
+    	function chart2(){
+    		var url = "/getBoardBChart";
+    		
+			$.ajax({
+				type:"POST",
+				contentType: "application/json",
+				url: url,
+				dataType: "json",
+				//data: JSON.stringify(data),
+				charset: "utf-8",
+				cache: false,
+				success: function(result){
+					if(result.length > 0){
+						var dataX = new Array();
+						var dataY = new Array();
+						$.each(result, function(index, item){
+							dataX.push(item.categoryNm);
+							dataY.push(item.cnt);
+						});
+						
+			    		var data = [
+			    			  {
+			    			    x: dataX,
+			    			    y: dataY,
+			    			    type: 'bar'
+			    			  }
+			    			];
+
+						var layout = {
+							title:'Bar Chart',
+							width: 600,
+							height: 500
+						};
+
+			   			Plotly.newPlot('barChart', data, layout);
+					}
+				},
+				data: function(xhr, status, e){
+				    alert("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+e);
+				}
+			});
+    	}
+    	
+    	function chart3(){
+    		var url = "/getBoardBChart";
+    		
+			$.ajax({
+				type:"POST",
+				contentType: "application/json",
+				url: url,
+				dataType: "json",
+				//data: JSON.stringify(data),
+				charset: "utf-8",
+				cache: false,
+				success: function(result){
+					if(result.length > 0){
+						var dataX = new Array();
+						var dataY = new Array();
+						$.each(result, function(index, item){
+							dataX.push(item.categoryNm);
+							dataY.push(item.cnt);
+						});
+						
+			    		// Bar chart
+			    		new Chart(document.getElementById("bar-chart"), {
+			    		    type: 'horizontalBar',
+			    		    data: {
+			    		      labels: dataX,
+			    		      datasets: [
+			    		        {
+			    		          label: "Bar Chart(chart.js)",
+			    		          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+			    		          data: dataY
+			    		        }
+			    		      ]
+			    		    },
+			    		    options: {
+			    		      legend: { display: false },
+			    		      title: {
+			    		        display: true,
+			    		        text: 'Bar Chart(Chart.js)'
+			    		      },
+			    		      scales: {
+			    		          xAxes: [{
+			    		                stacked: true,
+			    		              barPercentage: 0.8,
+			    		              minBarLength: 2,
+			    		              gridLines: {
+			    		                  offsetGridLines: true
+			    		              }
+			    		          }]
+			    		      }
+			    		    }
+			    		});
+					}
+				},
+				data: function(xhr, status, e){
+				    alert("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+e);
+				}
+			});
+    	}
+    	
+    	function chart4(){
+    		var url = "/getBoardLChart";
+    		
+			$.ajax({
+				type:"POST",
+				contentType: "application/json",
+				url: url,
+				dataType: "json",
+				//data: JSON.stringify(data),
+				charset: "utf-8",
+				cache: false,
+				success: function(result){
+					if(result.length > 0){
+						var dataX = new Array();
+						var dataY = new Array();
+						$.each(result, function(index, item){
+							dataX.push(item.regDate);
+							dataY.push(item.cnt);
+						});
+						
+			    		new Chart(document.getElementById("line-chart"), {
+			    			  type: 'line',
+			    			  data: {
+			    			    labels: dataX,
+			    			    datasets: [{ 
+			    			        data: dataY,
+			    			        label: "2019년",
+			    			        borderColor: "#3e95cd",
+			    			        fill: false
+			    			      }
+			    			    ]
+			    			  },
+			    			  options: {
+			    			    title: {
+			    			      display: true,
+			    			      text: 'Line Chart(Chart.js)'
+			    			    }
+			    			  }
+			   			});
+					}
+				},
+				data: function(xhr, status, e){
+				    alert("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+e);
+				}
+			});
+    	}
+    	
+    	function chart5(){
+    		var url = "/getBoardBChart";
+    		
+			$.ajax({
+				type:"POST",
+				contentType: "application/json",
+				url: url,
+				dataType: "json",
+				//data: JSON.stringify(data),
+				charset: "utf-8",
+				cache: false,
+				success: function(result){
+					if(result.length > 0){
+						var dataX = new Array();
+						var dataY = new Array();
+						$.each(result, function(index, item){
+							dataX.push(item.categoryNm);
+							dataY.push(item.cnt);
+						});
+						
+						new Chart(document.getElementById("pie-chart"), {
+						    type: 'pie',
+						    data: {
+						      labels: dataX,
+						      datasets: [{
+						        label: "123",
+						        backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+						        data: dataY
+						      }]
+						    },
+						    options: {
+						      title: {
+						        display: true,
+			    		        text: 'Pie Chart(Chart.js)'
+						      }
+						    }
+						});
+					}
+				},
+				data: function(xhr, status, e){
+				    alert("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+e);
+				}
+			});
+    	}
+	</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>join Member</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/color.css">
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="/static/jquery-easyui-1.6.11/locale/easyui-lang-ko.js"></script>
+</head>
+<body onload='init()'>
+	<form id="searchForm">
+		제목 <input class="easyui-textbox" id="title" name="title" />
+		&nbsp;&nbsp;
+		작성일자 
+			<input id="startDate" name="startDate" class="easyui-datebox" labelPosition="top" style="width:10%;"> 
+			~
+			<input id="endDate" name="endDate" class="easyui-datebox" labelPosition="top" style="width:10%;">
+		<a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:6%" onclick='fnSearch()'>검색</a>
+		<span style="padding-top:5px; padding-bottom:5px;float:right;">
+	        <a id="popupBtn" name="popupBtn" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick='popupRegist()'>글쓰기(팝업)</a>
+	        <a th:href="boardRegist" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">글쓰기</a>
+		</span>
+		
+		<div id="popArea" name="popArea"></div>
+	</form>
+    <table id="boardGrid" class="easyui-datagrid" style="width:100%;height:388px"
+            url="getBoardList" rownumbers="true" pagination="true" pageList="[10,20]" singleSelect="true">
+        <thead>
+            <tr>
+                <th field="seq" width="980" align="left" hidden>SEQ</th>
+                <th field="boardType" width="80" align="center" styler="cellStyler">카테고리</th>
+                <th field="title" width="750" align="left" styler="cellStyler">제목</th>
+                <th field="userNm" width="100" align="left" styler="cellStyler">작성자</th>
+                <!-- <th field="listprice" width="80" align="right">작성일</th> -->
+                <th field="regDate" width="80" align="left" styler="cellStyler">작성일</th>
+                <th field="viewCnt" width="80" align="center" styler="cellStyler">조회수</th>
+                <th field="ratingAvg" width="150" align="left" styler="cellStyler" formatter="formatProgress">평균 평가점수</th>
+                <th field="noticeYn" width="100"  styler="cellStyler" hidden>공지사항 여부</th>
+            </tr>
+        </thead>
+    </table>
+    <div class="easyui-progressbar" data-options="value:40" style="width:30%;"></div>
+    <script type="text/javascript">
+    	function init(){
+        	$('#title').textbox('textbox').focus();
+        	
+    		gridEvent();
+    	}
+    	
+    	function popupRegist(){
+			var popHtml = "<div id='popRegist' name='popRegist' style='padding:10px;'>Dialog Content.</div>";
+    		
+    		$("#popArea").html(popHtml);
+    		$('#popRegist').dialog({
+    		    title: '게시글 등록',
+    		    width: 800,
+    		    height: 510,
+    		    closed: false,
+    		    cache: false,
+    		    modal: true,
+    		    href: "boardRegist"
+    		});
+    	}
+    	
+    	/* 그리드 이벤트 */
+    	function gridEvent(){
+            $('#boardGrid').datagrid({
+            	/* 로우 클릭 이벤트(상세 화면 이동) */
+            	onDblClickRow: function(index, row){
+        			window.location.href="boardDetail?seq=" + row.seq;
+            	}
+            });
+    	}
+    	
+    	/* 목록 조회 */
+    	function fnSearch(){
+    		var url = "/getBoardList?";
+        	var form = $("#searchForm").serialize();
+    		$("#boardGrid").datagrid({
+				method : "POST",
+				url : url + form,
+				onLoadSuccess : function(row, param) {
+					var data = row.rows;
+					/* $.each(data, function(key, value){
+		    			alert(key + ' / ' + value)
+		    		}); */
+				}
+   			});
+    			
+    		return false;
+    	}
+
+    	/* 공지사항 cell style */
+        function cellStyler(value,row,index){
+            if (row.noticeYn == "Y"){
+                return 'background-color:#6293BB;color:#fff;font-weight:bold;';
+            }
+        }
+    	
+    	/* 평균 점수 formatter */
+        function formatProgress(value){
+            if (value != '999'){
+                var s = '<div style="width:100%;border:1px solid #ccc">' +
+                        '<div style="width:' + value + '%;background:#ffff66;color:#33cc33;padding-left:5px;">' + value + '점' + '</div>'
+                        '</div>';
+                return s;
+            } else {
+                //return '<div>미평가</div>';
+                var s = "<div class='easyui-progressbar' data-options='value:40' style='width:30%;'></div>";
+                return s;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.comtec.standard.message.mapper.MessageMapper">
+    <insert id="insertMessage" parameterType="HashMap">
+		<selectKey keyProperty="seq" resultType="string" order="BEFORE">
+			SELECT 'MSG' || nextval('seq_message') AS seq
+		</selectKey>
+    	INSERT INTO "TB_MESSAGE" (
+			  "SEQ_MSG"
+			, "CONTENT"
+			, "RECEIVER"
+			, "RECEIVER_TYPE"
+			, "MSG_TYPE"
+			, "REG_DATE"
+			, "UPD_DATE"
+    	) VALUES (
+			  #{seq}
+			, #{content}
+			, #{receiver}
+			, #{receiverType}
+			, #{msgType}
+    		, now()
+    		, now()
+    	)
+    </insert>
+    
+</mapper>
+

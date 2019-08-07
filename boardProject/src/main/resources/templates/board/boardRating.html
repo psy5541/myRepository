@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>join Member</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/color.css">
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="/static/jquery-easyui-1.6.11/locale/easyui-lang-ko.js"></script>
+	
+	<!-- star rating -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/fontawesome-stars.css">
+	<script type="text/javascript" src="/static/js/jquery.barrating.min.js"></script>
+</head>
+<body onLoad='init()'>
+	<form id="ratingForm">
+	    <div style="margin:20px 0;"></div>
+	    <div class="easyui-panel" style="width:100%;max-width:800px;padding:20px 20px;">
+	    	<input type="hidden" id="seq" name="seq" th:value="${seq}">
+	    
+		    <!-- 별점 -->
+		    <div style="width:100%; padding-bottom:10px;">
+		    	<span>게시글 평가 :</span>
+		    	<span id="ratingText" name="ratingText" style="float:right">50점</span>
+	    		<input type="hidden" id="rating" name="rating" value='50'>
+		    </div>
+		    
+	        <select id="boardRating" name="boardRating"> 
+	        	<option value="10">1</option> 
+	        	<option value="20">2</option> 
+	        	<option value="30">3</option> 
+	        	<option value="40">4</option> 
+	        	<option value="50">5</option> 
+	        	<option value="60">6</option> 
+	        	<option value="70">7</option> 
+	        	<option value="80">8</option> 
+	        	<option value="90">9</option> 
+	        	<option value="100">10</option> 
+        	</select>
+	    </div>
+	        
+	    <div style="padding-top:15px;float:right;">
+        	<a class="easyui-linkbutton c5" style="width:125px" onclick='fnRating()'>평가</a>
+        </div>
+	</form>
+    <script type="text/javascript">
+	    $(document).ready(function() {
+        	$('#boardRating').barrating({ 
+        		theme: 'fontawesome-stars', 
+        		initialRating: 50,
+        		onSelect: function(value, text, event){ 
+        			$("#rating").val(value);
+        			$("#ratingText").html(value+"점");
+       			}
+       		});
+	    })
+    	
+    	function fnRating(){
+    		var result = confirm('평가 하시겠습니까?');
+
+    		if(result){
+        		var url = "/insertRating?";
+            	var form = $("#ratingForm").serialize();
+        		
+    			$.ajax({
+    				type:"POST",
+    				contentType: "application/json",
+    				url: url + form,
+    				dataType: "json",
+    				//data: JSON.stringify(data),
+    				charset: "utf-8",
+    				cache: false,
+    				success: function(result){
+						if(result > 0) {
+							alert("정상적으로 평가되었습니다.");
+		        			window.location.href="boardDetail?seq=" + $("#seq").val();
+						}
+						else {
+							alert("평가에 실패하였습니다.");
+						}
+    				},
+    				data: function(xhr, status, e){
+    				    alert("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+e);
+    				}
+    			});
+    		}
+    	}
+    </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.comtec.standard.board.mapper.BoardMapper">
+    <insert id="insertBoard" parameterType="HashMap">
+    	INSERT INTO "TB_BOARD" (
+    		  "SEQ"
+    		, "TITLE"
+    		, "CONTENTS"
+    		, "USER_ID"
+    		, "VIEW_CNT"
+    		, "NOTICE_YN"
+    		, "CD_BOARD_TYPE"
+    		, "REG_DATE"
+    		, "UPD_DATE"
+    	) VALUES (
+    		  nextval('seq_board')
+    		, #{title}
+    		, #{contents}
+    		, #{userId}
+    		, 0
+    		<!-- 공지사항 등록 여부 -->
+    		<choose>
+    			<when test="noticeYn != null">
+    				, 'Y'
+    			</when>
+    			
+    			<otherwise>
+    				, 'N'
+    			</otherwise>
+    		</choose>
+    		, #{boardType}
+    		, now()
+    		, now()
+    	)
+    </insert>
+    
+   	<resultMap type="java.util.HashMap" id="BoardResultMap">
+		<result property="seq" column="SEQ" />
+		<result property="boardType" column="BOARD_TYPE" />
+		<result property="title" column="TITLE" />
+		<result property="contents" column="CONTENTS" />
+		<result property="userId" column="USER_ID" />
+		<result property="userNm" column="USER_NM" />
+		<result property="regDate" column="REG_DATE" />
+		<result property="viewCnt" column="VIEW_CNT" />
+		<result property="noticeYn" column="NOTICE_YN" />
+		<result property="ratingAvg" column="RATING_AVG" />
+		<result property="ratingCheck" column="RATING_CHECK" />
+	</resultMap>
+    <select id="getBoardList" resultMap="BoardResultMap">
+		SELECT 
+			  BOARD."SEQ"			/* SEQ */
+			, CD."CODE_NM" AS BOARD_TYPE	/* 보드카테고리 */
+			, BOARD."TITLE"			/* 제목 */
+			, BOARD."CONTENTS"		/* 내용 */
+			, USE."USER_ID"			/* 사용자ID */
+			, USE."USER_NM"			/* 사용자명 */
+			, CASE 
+				WHEN TO_CHAR(BOARD."REG_DATE", 'YYYYMMDD') = TO_CHAR(current_timestamp, 'YYYYMMDD') 
+					THEN TO_CHAR(BOARD."REG_DATE", 'HH24:MI')
+				ELSE TO_CHAR(BOARD."REG_DATE", 'YY-MM-DD')
+			  END AS REG_DATE		/* 등록일자 */
+			, BOARD."VIEW_CNT"		/* 조회수 */
+			, BOARD."NOTICE_YN"		/* 공지사항 여부 */
+			, COALESCE(TRUNC(SUM(RAT."RATING") / COUNT(RAT.*), 0), 999) AS RATING_AVG	/* 평균 평가점수 */
+			<if test="seq != null">
+			, (
+				SELECT COUNT(*) 
+				FROM "TB_BOARD_RATING" 
+				WHERE "SEQ" = BOARD."SEQ" 
+					AND "USER_ID" = #{userId}
+			  ) AS RATING_CHECK		/* 평가 등록 체크 */
+			</if>
+		FROM "TB_BOARD" BOARD
+			INNER JOIN "TB_USER" USE
+			ON BOARD."USER_ID" = USE."USER_ID"
+			LEFT OUTER JOIN "SYS_CODE" CD
+			ON BOARD."CD_BOARD_TYPE" = CD."CODE_ID" AND CD."CODE_CATEGORY_ID" = 'CD_BOARD_TYPE'
+			LEFT OUTER JOIN "TB_BOARD_RATING" RAT
+			ON BOARD."SEQ" = RAT."SEQ"
+		WHERE 1=1
+		<!-- 시퀀스 -->
+		<if test="seq != null">
+			AND BOARD."SEQ" = cast(#{seq} as integer)
+		</if>
+		
+		<!-- 제목 -->
+		<if test="title != null">
+			AND BOARD."TITLE" LIKE '%' || #{title} || '%'
+		</if>
+		GROUP BY BOARD."SEQ", CD."CODE_NM", BOARD."TITLE", BOARD."CONTENTS", USE."USER_ID"
+				, USE."USER_NM", BOARD."REG_DATE", BOARD."VIEW_CNT", BOARD."NOTICE_YN"
+		ORDER BY BOARD."NOTICE_YN" DESC, BOARD."REG_DATE" DESC, BOARD."SEQ" DESC
+		<!-- LIMIT cast(#{rows} as integer) OFFSET (cast(#{page} as integer)-1) * 10 -->
+    </select>
+    
+    <update id="updateBoard" parameterType="HashMap">
+		UPDATE "TB_BOARD" SET
+			  "TITLE" 		= #{title}
+			, "CONTENTS" 	= #{contents}
+			<!-- 공지사항 여부 -->
+    		<choose>
+    			<when test="noticeYn != null">
+    				, "NOTICE_YN" 	= 'Y'
+    			</when>
+    			
+    			<otherwise>
+    				, "NOTICE_YN" 	= 'N'
+    			</otherwise>
+    		</choose>
+			, "BOARD_TYPE" 	= #{boardType}
+			, "UPD_DATE" 	= now()
+		WHERE "SEQ" = cast(#{seq} as integer)
+    </update>
+    
+    <update id="updateViewCnt" parameterType="String">
+		UPDATE "TB_BOARD" SET 
+			"VIEW_CNT" = "VIEW_CNT" + 1 
+		WHERE "SEQ" = cast(#{seq} as integer)
+    </update>
+    
+    <delete id="deleteBoard" parameterType="String">
+    	DELETE FROM "TB_BOARD"
+		WHERE "SEQ" = cast(#{seq} as integer)
+    </delete> 
+    
+    <insert id="insertComment" parameterType="HashMap">
+		<selectKey keyProperty="seqComment" resultType="string" order="BEFORE">
+			SELECT
+				"SEQ" || TO_CHAR(now(), 'YYYYMMDDHH24MISS') AS seqComment
+			FROM "TB_BOARD"
+			WHERE "SEQ" = cast(#{seqBoard} as integer)
+		</selectKey>
+		
+		INSERT INTO "TB_COMMENT"(
+			  "SEQ_COMMENT"
+			, "UP_SEQ_COMMENT"
+			, "DS_COMMENT"
+			, "USER_ID"
+			, "SEQ_BOARD"
+			, "REG_DATE"
+			, "UPD_DATE"
+		)
+		VALUES (
+			  #{seqComment}
+			, NULL
+			, #{dataComment}
+			, #{userId}
+			, cast(#{seqBoard} as integer)
+			, NOW()
+			, NOW()
+		)
+    </insert>
+    
+   	<resultMap type="java.util.HashMap" id="CommentResultMap">
+		<result property="seqComment" column="SEQ_COMMENT" />
+		<result property="upSeqComment" column="UP_SEQ_COMMENT" />
+		<result property="dsComment" column="DS_COMMENT" />
+		<result property="userId" column="USER_ID" />
+		<result property="userNm" column="USER_NM" />
+		<result property="regDate" column="REG_DATE" />
+		<result property="updDate" column="UPD_DATE" />
+		<result property="seqBoard" column="SEQ_BOARD" />
+	</resultMap>
+    <select id="getCommentList" resultMap="CommentResultMap">
+    	SELECT
+    		  CMT."SEQ_COMMENT"
+    		, CMT."UP_SEQ_COMMENT"
+    		, CMT."DS_COMMENT"
+    		, CMT."USER_ID"
+			, USE."USER_NM"
+    		, CMT."REG_DATE"
+    		, CMT."UPD_DATE"
+    		, CMT."SEQ_BOARD"
+    	FROM "TB_COMMENT" CMT
+			INNER JOIN "TB_USER" USE
+			ON CMT."USER_ID" = USE."USER_ID"
+    	WHERE CMT."SEQ_BOARD" = cast(#{seqBoard} as integer)
+    </select>
+    
+   	<resultMap type="java.util.HashMap" id="chartResultMap">
+		<result property="cnt" column="CNT" />
+		<result property="regDate" column="REG_DATE" />
+	</resultMap>
+    <select id="getBoardLChart" resultMap="chartResultMap">
+		SELECT 
+			  COUNT(*) AS CNT
+			, TO_CHAR("REG_DATE", 'YYYY-MM-DD') AS REG_DATE
+		FROM "TB_BOARD"
+		<!-- WHERE "REG_DATE" BETWEEN CAST(DATE_TRUNC('MONTH', CURRENT_DATE-1) AS DATE) 
+			AND (DATE_TRUNC('MONTH', CURRENT_DATE-1) + INTERVAL '1 MONTH')::date -->
+		GROUP BY TO_CHAR("REG_DATE", 'YYYY-MM-DD')
+		ORDER BY TO_CHAR("REG_DATE", 'YYYY-MM-DD')
+    </select>
+    
+   	<resultMap type="java.util.HashMap" id="chartResultMap2">
+		<result property="cnt" column="CNT" />
+		<result property="categoryNm" column="CATEGORY_NM" />
+	</resultMap>
+    <select id="getBoardBChart" resultMap="chartResultMap2">
+		SELECT
+			  CD."CODE_NM" AS CATEGORY_NM
+			, COUNT(BOARD.*) AS CNT
+		FROM "SYS_CODE" CD
+			INNER JOIN "TB_BOARD" BOARD
+			ON CD."CODE_ID" = BOARD."CD_BOARD_TYPE"
+		WHERE CD."CODE_CATEGORY_ID" = 'CD_BOARD_TYPE'
+		GROUP BY CD."CODE_ID", CD."CODE_NM"
+    </select>
+    
+    <insert id="insertRating" parameterType="HashMap">
+		INSERT INTO "TB_BOARD_RATING"(
+			  "SEQ"
+			, "USER_ID"
+			, "RATING"
+			, "REG_DATE"
+			, "UPD_DATE"
+		)
+		VALUES (
+			  cast(#{seq} as integer)
+			, #{userId}
+			, cast(#{rating} as integer)
+			, NOW()
+			, NOW()
+		)
+    </insert>
+    
+</mapper>
+

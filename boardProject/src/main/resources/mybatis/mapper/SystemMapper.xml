@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.comtec.standard.system.mapper.SystemMapper">
+       	<resultMap type="java.util.HashMap" id="codeResultMap">
+		<result property="id" column="ID" />
+		<result property="text" column="TEXT" />
+	</resultMap>
+    <select id="getCodeList" resultMap="codeResultMap">
+		SELECT 
+			  "CODE_ID" AS ID
+			, "CODE_NM" AS TEXT
+		FROM "SYS_CODE"
+		WHERE "CODE_CATEGORY_ID" = #{CODE_CATEGORY_ID}
+		ORDER BY "ORDER_NO"
+    </select>
+    
+</mapper>
+

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>join Member</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/color.css">
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="/static/jquery-easyui-1.6.11/locale/easyui-lang-ko.js"></script>
+</head>
+<body>
+	<form id="insertForm">
+	    <div style="margin:5px 0;"></div>
+	    <div class="easyui-panel" style="width:95%;padding:30px 30px;">
+	    	<div style="margin-bottom:10px;">
+		        <select id="searchType" class="easyui-combobox" name="searchType" label='검색' style="width:200px;"  data-options="panelHeight:'auto'">
+				    <option value="user">사용자</option>
+				    <option value="dept">부서</option>
+				</select>
+	    	</div>
+			
+			<div id="userLayout" name="userLayout">
+			    <table id="userGrid" name="userGrid" class="easyui-datagrid" title="사용자" style="width:400px;height:250px"
+			            data-options="rownumbers:false,singleSelect:false,url:'memberList'">
+			        <thead>
+			            <tr>
+			                <th data-options="field:'ck',checkbox:true"></th>
+			                <th data-options="field:'userId',width:150">사용자ID</th>
+			                <th data-options="field:'userNm',width:100">사용자명</th>
+			                <th data-options="field:'deptId',width:120,hidden:true">부서ID</th>
+			                <th data-options="field:'deptNm',width:90">소속부서명</th>
+			            </tr>
+			        </thead>
+			    </table>
+			</div>
+			
+			<div id="deptLayout" name="deptLayout">
+			    <table id="deptGrid" name="deptGrid" class="easyui-datagrid" title="부서" style="width:400px;height:250px;"
+			            data-options="rownumbers:false,singleSelect:false,url:'getDeptList'">
+			        <thead>
+			            <tr>
+			                <th data-options="field:'ck',checkbox:true"></th>
+			                <th data-options="field:'deptId',width:100">부서ID</th>
+			                <th data-options="field:'deptNm',width:100">부서명</th>
+			            </tr>
+			        </thead>
+			    </table>
+			</div>
+	    </div>
+	</form>
+    <script type="text/javascript">
+	    $(document).ready(function() {
+	    	$('#searchType').combobox({
+		    	onChange: function(value){
+		    		createList(value);
+	        	}
+	    	});
+	    	
+	    	createList('user');
+	    })
+	    
+	    function createList(val){
+	    	if(val == 'dept') {
+	    		$("#userLayout").hide();
+	    		$("#deptLayout").show();
+	    		$("#deptGrid").datagrid({
+					method : "POST",
+					url : 'getDeptList'
+	   			});
+	    		//$("#userGrid").parents('div').eq(2).css('display', 'none');
+	    		//$("#deptGrid").parents('div').eq(2).css('display', '');
+	    	}
+	    	else {
+	    		$("#userLayout").show();
+	    		$("#deptLayout").hide();
+	    		//$("#userGrid").parents('div').eq(2).css('display', '');
+	    		//$("#deptGrid").parents('div').eq(2).css('display', 'none');
+	    	}
+	    }
+    	
+    	function setGridData(){
+    		var searchType = $('#searchType').val();
+    		var gridData = (searchType == 'user') ? $("#userGrid").datagrid('getChecked') : $("#deptGrid").datagrid('getChecked');
+			var arrayData = new Array();
+    		var tagData = new Array();
+    		
+    		if(searchType == 'user'){
+        		$.each(gridData , function(index, obj){
+        			var row = new Object();
+        			row.userId = obj.userId;
+        			row.userNm = obj.userNm;
+        			arrayData.push(row);
+        			tagData.push(obj.userNm);
+        		});
+    		}
+    		else if(searchType == 'dept'){
+        		$.each(gridData , function(index, obj){
+        			var row = new Object();
+        			row.deptId = obj.deptId;
+        			row.deptNm = obj.deptNm;
+        			arrayData.push(row);
+        			tagData.push(obj.deptNm);
+        		});
+    		}
+    		
+    		ubCallback(arrayData, searchType);
+    		$("#reciType").val(searchType);
+   			$("#searchPop").dialog('close');
+    		$('#reciBox').tagbox({
+    			value: tagData,
+                tagStyler: function(value){
+                    if (searchType == 'dept'){
+                        return 'background:#b8eecf;color:#45872c';
+                    }
+                }
+   			});
+    	}
+    	
+    	
+    </script>
+</body>
+</html>

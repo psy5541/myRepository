@@ -3,22 +3,55 @@
 
 <mapper namespace="com.comtec.standard.member.mapper.MemberMapper">
 
-	<resultMap type="com.comtec.standard.member.vo.MemberVO" id="MemberResultMap">
+	
+	<resultMap type="java.util.HashMap" id="getDeptList">
+		<result property="deptId" column="DEPARTMENT_ID" />
+		<result property="deptNm" column="DEPARTMENT_NM" />
+		<result property="deptIdUp" column="DEPARTMENT_ID_UP" />
+	</resultMap>
+    <select id="getDeptList" parameterType="HashMap" resultMap="getDeptList">
+        SELECT 
+        	  "DEPARTMENT_ID"
+        	, "DEPARTMENT_NM"
+        	, "DEPARTMENT_ID_UP"
+       	FROM "TB_DEPARTMENT"
+    </select>
+    
+	<resultMap type="java.util.HashMap" id="memberInfo">
 		<result property="userId" column="USER_ID" />
 		<result property="userNm" column="USER_NM" />
 		<result property="phoneNo" column="PHONE_NO" />
 	</resultMap>
-
-    <!-- <select id="memberList" parameterType="String" resultType="com.comtec.standard.member.vo.MemberVO"> -->
-    <select id="memberList" resultMap="MemberResultMap">
+    <select id="selectMemberInfo" parameterType="HashMap" resultMap="memberInfo">
         SELECT 
         	  "USER_ID"
         	, "USER_NM"
-        	, "PHONE_NO" 
+        	, "PHONE_NO"
        	FROM "TB_USER"
-     </select>
-    
-    <select id="insertMember" parameterType="HashMap">
+       	WHERE "USER_ID" = #{userId}
+    </select>
+
+    <!-- <select id="memberList" parameterType="String" resultType="com.comtec.standard.member.vo.MemberVO"> -->
+	<resultMap type="com.comtec.standard.member.vo.MemberVO" id="MemberResultMap">
+		<result property="userId" column="USER_ID" />
+		<result property="userNm" column="USER_NM" />
+		<result property="phoneNo" column="PHONE_NO" />
+		<result property="deptId" column="DEPARTMENT_ID" />
+		<result property="deptNm" column="DEPARTMENT_NM" />
+	</resultMap>
+    <select id="memberList" resultMap="MemberResultMap">
+		SELECT 
+			  USE."USER_ID"
+			, USE."USER_NM"
+			, USE."PHONE_NO" 
+			, DEPT."DEPARTMENT_ID"
+			, DEPT."DEPARTMENT_NM"
+		FROM "TB_USER" USE
+			INNER JOIN "TB_DEPARTMENT" DEPT
+			ON USE."DEPARTMENT_ID" = DEPT."DEPARTMENT_ID"
+    </select>
+
+    <insert id="insertMember" parameterType="HashMap">
     	INSERT INTO "TB_USER" (
     		  "USER_ID"
     		, "USER_NM"
@@ -32,6 +65,6 @@
     		, now()
     		, now()
     	)
-    </select>
+    </insert>
 </mapper>
 

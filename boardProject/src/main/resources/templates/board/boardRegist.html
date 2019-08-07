@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>join Member</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/color.css">
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="/static/jquery-easyui-1.6.11/locale/easyui-lang-ko.js"></script>
+</head>
+<body>
+	<form id="insertForm">
+	    <div style="margin:5px 0;"></div>
+	    <div class="easyui-panel" style="width:100%;max-width:800px;padding:30px 60px;">
+	    	<div style="padding-bottom:10px;">
+		        <select id="boardType" class="easyui-combobox" name="boardType" label='카테고리' style="width:100px;" data-options="
+		        	valueField:'id',
+		        	textField:'text',
+		        	panelHeight:'auto',
+		        	url:'getCodeList?CODE_CATEGORY_ID=CD_BOARD_TYPE',
+		        	labelPosition: 'top',
+		        	onLoadSuccess: function(items){
+						if (items.length){
+							var opts = $(this).combobox('options');
+							$(this).combobox('select', items[0][opts.valueField]);
+						}
+		        	}
+	        	"></select>
+			</div>
+			
+	        <div style="margin-bottom:5px">
+	            <input id="title" name="title" class="easyui-textbox" label="제목:" labelPosition="top" style="width:100%;">
+	        </div>
+	        
+	        <div style="margin-bottom:5px">
+	            <input id="contents" name="contents" class="easyui-textbox" label="내용:" labelPosition="top" multiline="true" value="" style="width:100%;height:150px">
+	        </div>
+	        
+		    <div style="margin-bottom:5px;with:500px;">
+	            <input id="noticeYn" class="easyui-checkbox" name="noticeYn" value="Y" label="공지사항:">
+	        </div>
+		    
+		    <div style="padding:5px 0;float:right;">
+		        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick='fnRegist()'>등록</a>
+		        <a th:href="boardList" class="easyui-linkbutton" data-options="iconCls:'icon-undo'" id="listBtn" name="listBtn">돌아가기</a>
+		    </div>
+	    </div>
+	</form>
+    <script type="text/javascript">
+	    $(document).ready(function() {
+        	$('#title').textbox('textbox').focus();
+	    })
+    	
+    	function fnRegist(){
+    		var result = confirm('등록 하시겠습니까?');
+    		
+    		if(result){
+        		var url = "/insertBoard?";
+            	var form = $("#insertForm").serialize();
+
+            	var data = {};
+            	var valName;
+            	var isTrue = false;
+        		$.each( $("#insertForm").serializeArray(), function(index, o){
+        			data[o.name] = o.value;
+        			if(o.value == null || o.value == ''){
+        				isTrue = true;
+        				return false;
+        			}else{
+        				isTrue = false;
+        			}
+        		});
+        		
+        		if(isTrue) {
+        			alert("글 정보를 입력하세요.");
+        		}else{
+        			$.ajax({
+        				type:"POST",
+        				contentType: "application/json",
+        				url: url + form,
+        				dataType: "json",
+        				//data: JSON.stringify(data),
+        				charset: "utf-8",
+        				cache: false,
+        				success: function(result){
+    						if(result > 0) {
+    							alert("정상적으로 등록되었습니다.");
+    							window.location.href="boardList";
+    						}
+    						else {
+    							alert("게시글 쓰기에 실패하였습니다.");
+    						}
+        				},
+        				data: function(xhr, status, e){
+        				    alert("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+e);
+        				}
+        			});
+        		}
+    		}
+    	}
+    </script>
+</body>
+</html>

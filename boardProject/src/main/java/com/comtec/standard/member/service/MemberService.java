@@ -1,7 +1,6 @@
 package com.comtec.standard.member.service;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -21,35 +20,31 @@ public class MemberService implements MemberMapper{
 	@Resource
 	private SqlSessionTemplate sqlSession;
 	
-	//@Resource
-	//private DataSourceTransactionManager transactionManager;
-	
-	public List<MemberVO> memberList() throws Exception{
-		MemberMapper memberMapper = sqlSession.getMapper(MemberMapper.class);
-		return memberMapper.memberList();
+	String prefix = "com.comtec.standard.member.mapper.MemberMapper";
+
+	@Override
+	public List<Map<String, Object>> getDeptList(HashMap<String, Object> parameter) throws Exception{
+		List<Map<String, Object>> map = sqlSession.selectList(prefix+".getDeptList", parameter);
+		return map;
 	}
 
 	@Override
-	@Transactional
-	public String insertMember(HashMap<String, Object> parameter) throws Exception {
-		//DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-		//def.setName("example.transaction");
-		//def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+	public Map<String, Object> selectMemberInfo(HashMap<String, Object> parameter) throws Exception{
+		Map<String, Object> map = sqlSession.selectOne(prefix+".selectMemberInfo", parameter);
+		if(map == null) map = new HashMap<String, Object>();
+		return map;
+	}
+
+	@Override
+	public List<MemberVO> memberList() throws Exception{
+		//MemberMapper memberMapper = sqlSession.getMapper(MemberMapper.class);
+		return sqlSession.selectList(prefix+".memberList");
+	}
+
+	@Override
+	public int insertMember(HashMap<String, Object> parameter) throws Exception {
+		int result = sqlSession.insert(prefix+".insertMember", parameter);
 		
-		//TransactionStatus status = transactionManager.getTransaction(def);
-		
-		try {
-			MemberMapper memberMapper = sqlSession.getMapper(MemberMapper.class);
-			memberMapper.insertMember(parameter);
-		} catch(Exception e) {
-			//transactionManager.rollback(status);
-			e.printStackTrace();
-			return "FAIL";
-		} /*
-			 * finally { sqlSession.close(); }
-			 */
-		
-		//transactionManager.commit(status);
-		return "SU";
+		return result;
 	}
 }

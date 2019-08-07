@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>join Member</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.6.11/themes/color.css">
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1.6.11/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="/static/jquery-easyui-1.6.11/locale/easyui-lang-ko.js"></script>
+	
+	<!-- ckeditor -->
+	<script type="text/javascript" src="/static/ckeditor/ckeditor.js"></script>
+</head>
+<style>
+	.panel combo-p panel-htop{
+		height:20px;
+	}
+</style>
+<body onload='init();'>
+	<form id="insertForm">
+	    <div style="margin:5px 0;"></div>
+	    <h1>메시지 전송</h1>
+	    <div class="easyui-panel" style="width:100%;max-width:700px;padding:30px 60px;">
+	    	<div style="padding-bottom:10px;">
+		        <select id="msgType" class="easyui-combobox" name="msgType" label='메시지 구분' style="width:200px;" data-options="panelHeight:'auto'">
+				    <option value="s">단문</option>
+				    <option value="l">장문</option>
+				</select>
+			</div>
+			
+	    	<div style="padding-bottom:10px;">
+				<input id="reciBox" class="easyui-searchbox" style="width:100%;">
+				<input id="reciType" name="reciType" type='hidden'>
+				<input id="reciId" name="reciId" type='hidden'>
+				<input id="reciNm" name="reciNm" type='hidden'>
+				<input id="reciType" name="reciType" type='hidden'>
+				<input id="receiver" name="receiver" type='hidden'>
+	    	</div>
+			
+            <div id="sLayout" name="sLayout" style="margin-top:5px;margin-bottom:20px">
+                <input class="easyui-textbox" id="sContent" name="sContent" style="width:100%" data-options="label:'메시지'">
+            </div>
+			
+            <div id="lLayout" name="lLayout" style="margin-top:5px;margin-bottom:20px">
+           		<span style="margin-bottom:20px;">메시지</span>
+	        	<textarea class="form-control" id="lContent"></textarea>
+	        	<input id="content" name="content" type='hidden'>
+            </div>
+			
+		    <div style="padding:5px 0;float:right;">
+		        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick='fnRegist()'>수신</a>
+		    </div>
+	    </div>
+	    
+		<!-- <div id="popArea" name="popArea"></div> -->
+		
+	    <div id="searchPop" class="easyui-dialog" title="사용자/부서" style="width:650px;height:500px;padding:10px" data-options=""></div>
+	</form>
+    <script type="text/javascript">
+    	function init(){
+        	$("#searchPop").dialog('close');
+        	
+        	//tagbox 초기 세팅
+    		$('#reciBox').tagbox({
+    		    label: '수신자',
+    		    buttonText:'검색',
+    		    onClickButton:searchPop
+    		});
+        	
+        	//messagebox 초기 새팅
+	    	$('#msgType').combobox({
+		    	onChange: function(value){
+		    		createMesage(value);
+	        	}
+	    	});
+        	
+	    	createMesage('s');
+    		
+        	$('#reciBox').textbox('textbox').focus();
+    	}
+    	
+    	function createMesage(val){
+    		//단문(s)
+    		if(val == 's'){
+    			$("#sLayout").show();
+    			$("#lLayout").hide();
+    		}
+    		//장문(l)
+    		else{
+    			$("#sLayout").hide();
+    			$("#lLayout").show();
+    			
+    			fnCkEditor();
+    		}
+    	}
+
+	    var editor;
+    	function fnCkEditor(){
+    		CKEDITOR.replace('lContent', {
+    			height:250
+   			});
+    		
+    	    CKEDITOR.on( 'instanceReady', function( ev ) {
+    	        editor = ev.editor;
+    	        editor.on( 'readOnly', function() {
+    	            document.getElementById( 'readOnlyOn' ).style.display = this.readOnly ? 'none' : '';
+    	            document.getElementById( 'readOnlyOff' ).style.display = this.readOnly ? '' : 'none';
+    	        });
+    	    });
+    	}
+    	
+    	//검색 팝업
+        function searchPop(value){
+        	$("#searchPop").dialog('open');
+    		
+    		$('#searchPop').dialog({
+    		    title: '사용자/부서', 
+    		    autoOpen:true,
+    		    width: 500,
+    		    height: 500,
+    		    closed: false,
+    		    cache: false,
+    		    modal: true,
+    		    href: "udList",
+    		    buttons:[{
+    		    	text:'선택',
+    		    	handler:function(){
+    		    		setGridData();
+    		    	}
+   		    	},{
+   		    		text:'닫기',
+   		    		handler:function(){
+   		    			$("#searchPop").dialog('close');
+   		    		}
+   		    	}]
+    		});
+    		
+			//var popHtml = "<div id='searchPop' name='searchPop' style='padding:10px;'>Dialog Content.</div>";
+    		
+    		//$("#popArea").html(popHtml);
+        }
+        
+    	//검색 팝업 callback 함수
+        function ubCallback(gridData, searchType){
+    		var reciId = new Array();
+    		var reciNm = new Array();
+    		$.each(gridData , function(index, obj){
+       			reciId.push((searchType == 'user') ? obj.userId : obj.deptId);
+       			reciNm.push((searchType == 'user') ? obj.userNm : obj.deptNm);
+    		});
+    		
+    		$("#reciId").val(reciId);
+    		$("#reciNm").val(reciNm);
+    		$("#reciType").val(searchType);
+        }
+    	
+    	function fnRegist(){
+    		var reciVal = $("#reciBox").val();
+    		var msgType = $("#msgType").val();
+    		var content = (msgType == 's') ? $("#sContent").val():editor.getData();
+    		
+    		//값 예외검사
+    		if(reciVal == null || reciVal == ''){
+    			alert("수신자를 선택해주세요.");
+            	$('#reciBox').textbox('textbox').focus();
+    			return false;
+    		}
+    		else if(content == null || content == ''){
+    			alert("메시지를 입력하세요.");
+    			return false;
+    		}
+    		
+    		
+    		var result = confirm('해당 정보로 수신 하시겠습니까?');
+    		
+    		if(result){
+    			//data create
+    			var reciBox = $("#reciBox").val().split(',');
+    			var reciId = $("#reciId").val().split(',');
+    			var reciNm = $("#reciNm").val().split(',');
+    			
+    			var receiver = new Array();
+    			for(var i in reciNm){
+    				for(var j in reciBox){
+    					if(reciNm[i] == reciBox[j]){
+    						receiver.push(reciId[i]);
+    					}
+    				}
+    			}
+    			$("#receiver").val(receiver);
+				$("#content").val(content);
+    			
+    			//request
+	    		var url = "/insertMessage?";
+	        	var form = $("#insertForm").serialize();
+        		
+       			$.ajax({
+       				type:"POST",
+       				contentType: "application/json",
+       				url: url + form,
+       				dataType: "json",
+       				//data: JSON.stringify(data),
+       				charset: "utf-8",
+       				async: false,
+       				success: function(result){
+   						if(result > 0) {
+   							alert("정상적으로 수신되었습니다.");
+   							window.location.href="messageRegist";
+   						}
+   						else {
+   							alert("수신에 실패하였습니다.");
+   						}
+       				},
+       				data: function(xhr, status, e){
+       				    alert("code:"+xhr.status+"\n"+"message:"+xhr.responseText+"\n"+"error:"+e);
+       				}
+       			});
+    		}
+    	}
+    </script>
+</body>
+</html>

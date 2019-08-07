@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.comtec.standard.member.mapper.MemberMapper">
+
+	<resultMap type="com.comtec.standard.member.vo.MemberVO" id="MemberResultMap">
+		<result property="userId" column="USER_ID" />
+		<result property="userNm" column="USER_NM" />
+		<result property="phoneNo" column="PHONE_NO" />
+	</resultMap>
+
+    <!-- <select id="memberList" parameterType="String" resultType="com.comtec.standard.member.vo.MemberVO"> -->
+    <select id="memberList" resultMap="MemberResultMap">
+        SELECT 
+        	  "USER_ID"
+        	, "USER_NM"
+        	, "PHONE_NO" 
+       	FROM "TB_USER"
+     </select>
+    
+    <select id="insertMember" parameterType="HashMap">
+    	INSERT INTO "TB_USER" (
+    		  "USER_ID"
+    		, "USER_NM"
+    		, "PHONE_NO"
+    		, "REG_DATE"
+    		, "UPD_DATE"
+    	) VALUES (
+    		  #{userId}
+    		, #{userNm}
+    		, #{phoneNo}
+    		, now()
+    		, now()
+    	)
+    </select>
+</mapper>
+

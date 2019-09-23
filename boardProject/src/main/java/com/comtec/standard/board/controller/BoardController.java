@@ -1,13 +1,17 @@
 package com.comtec.standard.board.controller;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.comtec.standard.board.service.BoardService;
 
 @Controller
-public class BoardController {
+public class BoardController{
 	@Resource
 	BoardService boardService;
 	
